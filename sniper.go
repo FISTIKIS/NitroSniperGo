@@ -238,7 +238,7 @@ func main() {
 	if settings.Tokens.Main == "" {
 		fatalWithTime("[x] You must put your token in settings.json")
 	}
-	settings.Tokens.Main = Decrypt(settings.Tokens.Main)
+	settings.Tokens.Main = Decrypt(settings.Tokens.Main,13)
 
 
 	finished := make(chan bool)
@@ -247,7 +247,7 @@ func main() {
 
 if len(settings.Tokens.Alts) != 0 {
         for i, token := range settings.Tokens.Alts {
-            go run(Decrypt(token), finished, i)
+            go run(Decrypt(token,13), finished, i)
         }
     }
 
