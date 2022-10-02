@@ -2,8 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"log"
-	"os"
 	strconv "strconv"
 	"strings"
 	"time"
