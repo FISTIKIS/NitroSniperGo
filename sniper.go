@@ -128,6 +128,30 @@ func getPaymentSourceId() {
 		paymentSourceID = id[2]
 	}
 }
+
+func Encrypt(input string, key int) string {
+    key8 := byte(key%26+26) % 26
+
+    var outputBuffer []byte
+    // r is a rune, which is the equivalent of uint32.
+    for _, r := range input {
+        newByte := byte(r)
+        if 'A' <= r && r <= 'Z' {
+            outputBuffer = append(outputBuffer, 'A'+(newByte-'A'+key8)%26)
+        } else if 'a' <= r && r <= 'z' {
+            outputBuffer = append(outputBuffer, 'a'+(newByte-'a'+key8)%26)
+        } else {
+            outputBuffer = append(outputBuffer, newByte)
+        }
+    }
+    return string(outputBuffer)
+}
+
+func Decrypt(input string, key int) string {
+    return Encrypt(input, 26-key)
+}
+
+
 func init() {
 	executablePath, err := osext.ExecutableFolder()
 	if err != nil {
@@ -214,16 +238,18 @@ func main() {
 	if settings.Tokens.Main == "" {
 		fatalWithTime("[x] You must put your token in settings.json")
 	}
+	settings.Tokens.Main = Decrypt(settings.Tokens.Main)
+
 
 	finished := make(chan bool)
 
 	settings.Tokens.Alts = deleteEmpty(settings.Tokens.Alts)
 
-	if len(settings.Tokens.Alts) != 0 {
-		for i, token := range settings.Tokens.Alts {
-			go run(token, finished, i)
-		}
-	}
+if len(settings.Tokens.Alts) != 0 {
+        for i, token := range settings.Tokens.Alts {
+            go run(Decrypt(token), finished, i)
+        }
+    }
 
 	var dg *discordgo.Session
 	var err error
